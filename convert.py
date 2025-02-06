@@ -1,134 +1,135 @@
-
 import tkinter as tk
 from tkinter import ttk, messagebox
-from tkcalendar import Calendar
+from PIL import Image, ImageTk  # For Managing images
 import requests
 from datetime import datetime, timedelta
-
 import pygame
 
-# Initialize pygame mixer
+#  pygame mixer
 pygame.mixer.init()
 
 # Load and play the music
 pygame.mixer.music.load('Pufino - Thoughtful (freetouse.com).mp3')
-pygame.mixer.music.play(-1)  # Use -1 to loop the sound infinitely
+pygame.mixer.music.play(-1)  # Using library  -1 to loop the sound infinitely
 
-
-
-# Replace with your actual API key
+# Replace the API key 
 API_KEY = "fca_live_GdR82iAVj8ureJfnvmKEcGr2RQhJubKUfqux9Oco"
 BASE_URL = "https://api.freecurrencyapi.com/v1/"
 
 class CurrencyApp:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Currency Converter")
-        self.root.geometry("800x800")
-        self.root.configure(bg="#f5f5f5")
+    def __init__(main, root):
+        main.root = root
+        main.root.title("Currency Converter")
+        main.root.geometry("800x800")
+        main.root.configure(bg="#e6f7ff")  #  background 
+        
+        # The Setting of background image
+        main.bg_image = Image.open("17454.jpg")  # Making  the Open image
+        main.bg_image = main.bg_image.resize((800, 800), Image.Resampling.LANCZOS)  # To Making fit image Resizing the screen
+        main.bg_photo = ImageTk.PhotoImage(main.bg_image)
 
-        # Header
-        header = tk.Label(
+        #  label for holding  the background image
+        main.bg_label = tk.Label(main.root, image=main.bg_photo)
+        main.bg_label.place(relwidth=1, relheight=1)  #Making The image  Stretch for full window 
+
+        # The Header
+        Hdr = tk.Label(
             root, text="Currency Converter", font=("Helvetica", 24, "bold"), bg="#4682b4", fg="white"
         )
-        header.pack(fill=tk.X, pady=10)
+        Hdr.pack(fill=tk.X, pady=10)
 
-        # Frames
-        self.main_frame = ttk.Frame(root, padding=10)
-        self.main_frame.pack(fill=tk.BOTH, expand=True)
+        #The  Main frame to  bring the content in center 
+        main.main_frame = ttk.Frame(root, padding=10)
+        main.main_frame.pack(fill=tk.BOTH, expand=True)
 
-        # Input Frame
-        self.input_frame = ttk.LabelFrame(self.main_frame, text="Input", padding=10)
-        self.input_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+        # The  Frame of Input(centered)
+        main.input_frame = ttk.LabelFrame(main.main_frame, text="Input", padding=10)
+        main.input_frame.pack(pady=20, anchor="center")
 
-        # Output Frame
-        self.output_frame = ttk.LabelFrame(self.main_frame, text="Output", padding=10)
-        self.output_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
+        # The Frame of  Output  (centered)
+        main.output_frame = ttk.LabelFrame(main.main_frame, text="Output", padding=10)
+        main.output_frame.pack(pady=20, anchor="center")
 
-        # Historical Rates Frame
-        self.historical_frame = ttk.LabelFrame(self.main_frame, text="Historical Rates", padding=10)
-        self.historical_frame.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
+        # The Frame of Historical Rates  (In centered)
+        main.historical_frame = ttk.LabelFrame(main.main_frame, text="Historical Rates", padding=10)
+        main.historical_frame.pack(pady=20, anchor="center")
 
-        # Add weights for resizing
-        self.main_frame.rowconfigure(0, weight=1)
-        self.main_frame.columnconfigure(0, weight=1)
-
-        # Base Currency Dropdown
-        ttk.Label(self.input_frame, text="Base Currency:", font=("Helvetica", 14)).grid(
+        # The Dropdown of Base Currency 
+        ttk.Label(main.input_frame, text="Base Currency:", font=("Helvetica", 14)).grid(
             row=0, column=0, padx=10, pady=5, sticky="w"
         )
-        self.base_currency_var = tk.StringVar()
-        self.base_currency_dropdown = ttk.Combobox(self.input_frame, textvariable=self.base_currency_var, font=("Helvetica", 14))
-        self.base_currency_dropdown.grid(row=0, column=1, padx=10, pady=5, sticky="ew")
+        main.base_currency_var = tk.StringVar()
+        main.base_currency_dropdown = ttk.Combobox(main.input_frame, textvariable=main.base_currency_var, font=("Helvetica", 14))
+        main.base_currency_dropdown.grid(row=0, column=1, padx=10, pady=5, sticky="ew")
 
-        # Target Currency Dropdown
-        ttk.Label(self.input_frame, text="Target Currency:", font=("Helvetica", 14)).grid(
+        # The Dropdown Target Currency 
+        ttk.Label(main.input_frame, text="Target Currency:", font=("Helvetica", 14)).grid(
             row=1, column=0, padx=10, pady=5, sticky="w"
         )
-        self.target_currency_var = tk.StringVar()
-        self.target_currency_dropdown = ttk.Combobox(self.input_frame, textvariable=self.target_currency_var, font=("Helvetica", 14))
-        self.target_currency_dropdown.grid(row=1, column=1, padx=10, pady=5, sticky="ew")
+        main.target_currency_var = tk.StringVar()
+        main.target_currency_dropdown = ttk.Combobox(main.input_frame, textvariable=main.target_currency_var, font=("Helvetica", 14))
+        main.target_currency_dropdown.grid(row=1, column=1, padx=10, pady=5, sticky="ew")
 
-        # Amount
-        ttk.Label(self.input_frame, text="Amount:", font=("Helvetica", 14)).grid(
+        # The Amount  
+        ttk.Label(main.input_frame, text="Amount:", font=("Helvetica", 14)).grid(
             row=2, column=0, padx=10, pady=5, sticky="w"
         )
-        self.amount_entry = ttk.Entry(self.input_frame, font=("Helvetica", 14))
-        self.amount_entry.grid(row=2, column=1, padx=10, pady=5, sticky="ew")
+        main.amount_entry = ttk.Entry(main.input_frame, font=("Helvetica", 14))
+        main.amount_entry.grid(row=2, column=1, padx=10, pady=5, sticky="ew")
 
-        # Buttons
-        self.convert_button = tk.Button(
-            self.input_frame,
+        # The Buttons of swap, Convert and clear 
+        main.convert_button = tk.Button(
+            main.input_frame,
             text="Convert",
             font=("Helvetica", 14),
             bg="#4682b4",
             fg="white",
-            command=self.convert_currency,
+            command=main.convert_currency,
         )
-        self.convert_button.grid(row=3, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
+        main.convert_button.grid(row=3, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
 
-        self.swap_button = tk.Button(
-            self.input_frame,
+        main.swap_button = tk.Button(
+            main.input_frame,
             text="Swap",
             font=("Helvetica", 14),
             bg="#32cd32",
             fg="white",
-            command=self.swap_currencies,
+            command=main.swap_currencies,
         )
-        self.swap_button.grid(row=4, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
+        main.swap_button.grid(row=4, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
 
-        self.clear_button = tk.Button(
-            self.input_frame,
+        main.clear_button = tk.Button(
+            main.input_frame,
             text="Clear",
             font=("Helvetica", 14),
             bg="#ff6347",
             fg="white",
-            command=self.clear_inputs,
+            command=main.clear_inputs,
         )
-        self.clear_button.grid(row=5, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
+        main.clear_button.grid(row=5, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
 
-        self.result_label = tk.Label(self.output_frame, text="", font=("Helvetica", 14), bg="white", anchor="w", justify="left")
-        self.result_label.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        main.result_label = tk.Label(main.output_frame, text="", font=("Helvetica", 14), bg="white", anchor="w", justify="left")
+        main.result_label.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-        self.historical_button = tk.Button(
-            self.historical_frame,
+        main.historical_button = tk.Button(
+            main.historical_frame,
             text="View Historical Rates",
             font=("Helvetica", 14),
             bg="#4682b4",
             fg="white",
-            command=self.view_historical_data,
+            command=main.view_historical_data,
         )
-        self.historical_button.pack(fill=tk.X, padx=10, pady=10)
+        main.historical_button.pack(fill=tk.X, padx=10, pady=10)
 
-        self.historical_result = tk.Text(self.historical_frame, wrap=tk.WORD, height=10)
-        self.historical_result.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+        main.historical_result = tk.Text(main.historical_frame, wrap=tk.WORD, height=10)
+        main.historical_result.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
 
-        # Fetch available currencies
-        self.available_currencies = self.get_available_currencies()
-        self.base_currency_dropdown['values'] = self.available_currencies
-        self.target_currency_dropdown['values'] = self.available_currencies
+        # The Fetch available currencies in options
+        main.available_currencies = main.get_available_currencies()
+        main.base_currency_dropdown['values'] = main.available_currencies
+        main.target_currency_dropdown['values'] = main.available_currencies
 
-    def get_available_currencies(self):
+    def get_available_currencies(main):
         """Fetches all available currencies from the API."""
         url = f"{BASE_URL}currencies"
         params = {"apikey": API_KEY}
@@ -138,25 +139,25 @@ class CurrencyApp:
         messagebox.showerror("Error", "Unable to fetch available currencies.")
         return []
 
-    def convert_currency(self):
+    def convert_currency(main):
         """Converts the currency based on the provided inputs."""
-        base_currency = self.base_currency_var.get().upper()
-        target_currency = self.target_currency_var.get().upper()
+        base_currency = main.base_currency_var.get().upper()
+        target_currency = main.target_currency_var.get().upper()
         try:
-            amount = float(self.amount_entry.get())
+            amount = float(main.amount_entry.get())
         except ValueError:
             messagebox.showerror("Input Error", "Amount must be a valid number.")
             return
-        rate = self.get_exchange_rate(base_currency, target_currency)
+        rate = main.get_exchange_rate(base_currency, target_currency)
         if rate:
             result = amount * rate
-            self.result_label.config(
+            main.result_label.config(
                 text=f"{amount:.2f} {base_currency} = {result:.2f} {target_currency}"
             )
         else:
-            self.result_label.config(text="Exchange rate not available.")
+            main.result_label.config(text="Exchange rate not available.")
 
-    def get_exchange_rate(self, base_currency, target_currency):
+    def get_exchange_rate(main, base_currency, target_currency):
         """Fetches the exchange rate for the given currencies."""
         url = f"{BASE_URL}latest"
         params = {"apikey": API_KEY, "base_currency": base_currency, "currencies": target_currency}
@@ -167,25 +168,25 @@ class CurrencyApp:
         messagebox.showerror("Error", "Unable to fetch exchange rate.")
         return None
 
-    def swap_currencies(self):
-        """Swaps the values of the base and target currency dropdowns."""
-        base = self.base_currency_var.get()
-        target = self.target_currency_var.get()
-        self.base_currency_var.set(target)
-        self.target_currency_var.set(base)
+    def swap_currencies(main):
+        """Swaps the values of the base and target currency dropdowns.""" 
+        base = main.base_currency_var.get()
+        target = main.target_currency_var.get()
+        main.base_currency_var.set(target)
+        main.target_currency_var.set(base)
 
-    def clear_inputs(self):
-        """Clears all inputs and outputs."""
-        self.base_currency_var.set("")
-        self.target_currency_var.set("")
-        self.amount_entry.delete(0, tk.END)
-        self.result_label.config(text="")
-        self.historical_result.delete(1.0, tk.END)
+    def clear_inputs(main):
+        """Clears all inputs and outputs.""" 
+        main.base_currency_var.set("")
+        main.target_currency_var.set("")
+        main.amount_entry.delete(0, tk.END)
+        main.result_label.config(text="")
+        main.historical_result.delete(1.0, tk.END)
 
-    def view_historical_data(self):
+    def view_historical_data(main):
         """Fetches and displays historical exchange rates for the last 30 days."""
-        base_currency = self.base_currency_var.get().upper()
-        target_currency = self.target_currency_var.get().upper()
+        base_currency = main.base_currency_var.get().upper()
+        target_currency = main.target_currency_var.get().upper()
         if not base_currency or not target_currency:
             messagebox.showerror("Input Error", "Please select both currencies.")
             return
@@ -207,12 +208,47 @@ class CurrencyApp:
             for date, rates in historical_data.items():
                 rate = rates.get(target_currency, "N/A")
                 result_text += f"{date}: 1 {base_currency} = {rate} {target_currency}\n"
-            self.historical_result.delete(1.0, tk.END)
-            self.historical_result.insert(tk.END, result_text)
+            main.historical_result.delete(1.0, tk.END)
+            main.historical_result.insert(tk.END, result_text)
+            # larging  the font size and reduce the text box height 
+            main.historical_result.config(font=("Helvetica", 28))  # Making Double  size of font
+            main.historical_result.config(height=5)  # Making the Half size of box 
+
         else:
             messagebox.showerror("Error", "Unable to fetch historical rates.")
 
+class StartPage:
+    def __init__(main, root):
+        main.root = root
+        main.root.title("Welcome")
+        main.root.geometry("800x600")
+        main.root.configure(bg="#3DED97")  # Given the Green background for start page
+
+        # Hdr
+        Hdr = tk.Label(
+            root, text="Welcome to Currency Converter", font=("Helvetica", 48, "bold"), bg="#3DED97", fg="black"
+        )
+        Hdr.pack(fill=tk.X, pady=100)
+
+        #  The Code of the Start Button
+        main.start_button = tk.Button(
+            root,
+            text="Start",
+            font=("Helvetica", 60),  # Font size 60 
+            bg="#4682b4",
+            fg="white",
+            command=main.start_application,
+        )
+        main.start_button.place(relx=0.5, rely=0.5, anchor="center")
+
+    def start_application(main):
+        """Transition to the next page (Currency Converter)."""
+        main.root.destroy()
+        new_root = tk.Tk()
+        app = CurrencyApp(new_root)
+        new_root.mainloop()
+
 if __name__ == "__main__":
     root = tk.Tk()
-    app = CurrencyApp(root)
+    start_page = StartPage(root)
     root.mainloop()
